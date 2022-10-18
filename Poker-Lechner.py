@@ -15,7 +15,6 @@ for col in color:
         cards.append((sym, col))
         # print(cards)
 
-
 test_cards = [(9, 'Pik'), (10, 'Pik'), (11, 'Pik'), (12, 'Pik'), (13, 'Pik')]
 
 
@@ -46,25 +45,25 @@ def random_five():
 # 5, all one suit
 def flush(rand_5):
     suit = [i[1] for i in rand_5]
-    value_cnt = {}
+    val_cnt = {}
     for s in suit:
-        if s not in value_cnt.keys():
-            value_cnt[s] = 1
+        if s not in val_cnt.keys():
+            val_cnt[s] = 1
         else:
-            value_cnt[s] += 1
-    return list(value_cnt.values()).count(5) == 1
+            val_cnt[s] += 1
+    return list(val_cnt.values()).count(5) == 1
 
 
 # cards ascending, suit doesn't matter
 def straight(rand_5):
     # if difference between the max rank and min rank plus one is equal to the size of the set
     # and the set is the size of the hand, you have a straight
-    # rank_set = {card['rank'] for card in rand_5}
     rank_set = [i[0] for i in rand_5]
     rank_range = max(rank_set) - min(rank_set) + 1
     return rank_range == len(rand_5) and len(rank_set) == len(rand_5)
 
 
+# checks whether there are multiple cards of the same rank, used in pair, three_of_a_kind,...
 def check_multiple(rand_5):
     ranks = [i[0] for i in rand_5]
     # print(ranks)
@@ -91,7 +90,7 @@ def one_pair(rand_5):
 # three cards of the same suit
 def three_of_a_kind(rand_5):
     check_multiple(rand_5)
-    print (list(value_cnt.values()).count(3) == 1)
+    print(list(value_cnt.values()).count(3) == 1)
     return list(value_cnt.values()).count(3) == 1
 
 
@@ -103,14 +102,14 @@ def full_house(rand_5):
 # four cards of the same suit
 def four_of_a_kind(rand_5):
     check_multiple(rand_5)
-    print( list(value_cnt.values()).count(4) == 1)
+    print(list(value_cnt.values()).count(4) == 1)
     return list(value_cnt.values()).count(4) == 1
 
 
 # two pairs
 def two_pair(rand_5):
     check_multiple(rand_5)
-    print ( list(value_cnt.values()).count(2) == 2)
+    print(list(value_cnt.values()).count(2) == 2)
     return list(value_cnt.values()).count(2) == 2
 
 
@@ -146,8 +145,7 @@ def royal_flush(rand_5):
         print("false")
         return False
 
-
-#royal_flush(test_cards)
+# royal_flush(test_cards)
 # royal_flush(rand_5x)
 # random_five()
 # one_pair(random_five())
