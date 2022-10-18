@@ -13,6 +13,10 @@ for col in color:
     for sym in symbol:
         # cards.append({'color': col, 'symbol': sym})
         cards.append((sym, col))
+        # print(cards)
+
+
+test_cards = [(9, 'Pik'), (10, 'Pik'), (11, 'Pik'), (12, 'Pik'), (13, 'Pik')]
 
 
 # shuffle cards
@@ -61,14 +65,9 @@ def straight(rand_5):
     return rank_range == len(rand_5) and len(rank_set) == len(rand_5)
 
 
-# one pair and one three_of_a_kind
-def full_house(rand_5):
-    return three_of_a_kind(rand_5) and one_pair(rand_5)
-
-
 def check_multiple(rand_5):
     ranks = [i[0] for i in rand_5]
-    print(ranks)
+    # print(ranks)
     # print (col)
     for rank in ranks:
         # if color is not a key yet, add this color for the first time
@@ -86,25 +85,32 @@ def one_pair(rand_5):
     return list(value_cnt.values()).count(2) == 1
 
 
-one_pair(random_five())
 # successes = [one_pair(random_five()) for _ in range(100)]
 
 
 # three cards of the same suit
 def three_of_a_kind(rand_5):
     check_multiple(rand_5)
+    print (list(value_cnt.values()).count(3) == 1)
     return list(value_cnt.values()).count(3) == 1
+
+
+# one pair and one three_of_a_kind
+def full_house(rand_5):
+    return three_of_a_kind(rand_5) and one_pair(rand_5)
 
 
 # four cards of the same suit
 def four_of_a_kind(rand_5):
     check_multiple(rand_5)
+    print( list(value_cnt.values()).count(4) == 1)
     return list(value_cnt.values()).count(4) == 1
 
 
 # two pairs
 def two_pair(rand_5):
     check_multiple(rand_5)
+    print ( list(value_cnt.values()).count(2) == 2)
     return list(value_cnt.values()).count(2) == 2
 
 
@@ -117,8 +123,10 @@ def straight_flush(rand_5):
     suit = [i[1] for i in rand_5]
     ranks.sort()
     if straight(rand_5) and suit.count(suit[0]) == len(suit):
+        print("true")
         return True
     else:
+        print("false")
         return False
 
 
@@ -132,9 +140,14 @@ def royal_flush(rand_5):
     # suit.count has to be 5 because we need the same suit 5 times
     # --> len.count has as well as len(suit) to be five
     if straight(rand_5) and ranks[0] == 10 and suit.count(suit[0]) == len(suit):
+        print("true")
         return True
     else:
+        print("false")
         return False
 
+
+#royal_flush(test_cards)
+# royal_flush(rand_5x)
 # random_five()
 # one_pair(random_five())
