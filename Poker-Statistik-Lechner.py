@@ -2,7 +2,8 @@
 # https://www.cardplayer.com/rules-of-poker/hand-rankings
 # https://www.888poker.de/magazine/strategy/wahrscheinlichkeit-nutzen-poker#:~:text=Die%20Wahrscheinlichkeit%2C%20ein%20Full%20House,H%C3%A4nden%20oder%200%2C00139%25.
 # filter: https://www.programiz.com/python-programming/methods/built-in/filter
-# inspired by Marcel Maffey's Lösung mit Filter bei der 1. Besprechung der Aufgabe
+# inspired by Marcel Maffey's Lösung mit Filter bei der 1. Besprechung der Aufgabe, weil eigen V1 bei Schleifendurchlauf
+# nicht mehr funktioniert
 
 import random
 
@@ -15,7 +16,7 @@ outcomes = ["Highcard", "Pair", "Two Pair", "Three of a Kind", "Straight", "Flus
             "Full House", "Four of a Kind", "Straight Flush", "Royal Flush"]
 
 stat = {}
-games = 100000
+games = 100001
 
 
 def stat_dict():
@@ -26,14 +27,13 @@ def stat_dict():
 # create list with cards from array
 for col in color:
     for sym in symbol:
-        # cards.append({'color': col, 'symbol': sym})
         cards.append((sym, col))
         # print(cards)
 
 # test_cards = [(5, 'Pik'), (6, 'Herz'), (7, 'Karo'), (8, 'Kreuz'), (9, 'Pik')]
 # test2 = [(2, 'Kreuz'), (2, 'Herz'), (13, 'Karo'), (14, 'Herz'), (10, 'Kreuz')]
 test3 = [(4, 'Karo'), (4, 'Pik'), (4, 'Kreuz'), (7, 'Kreuz'), (10, 'Kreuz')]
-test4 = [(4, 'Kreuz'), (6, 'Kreuz'), (2, 'Kreuz'), (7, 'Pik'), (10, 'Kreuz')]
+test4 = [(5, 'Kreuz'), (6, 'Kreuz'), (7, 'Kreuz'), (8, 'Pik'), (9, 'Kreuz')]
 
 
 
@@ -91,7 +91,8 @@ def pairs(rand_5):
     pair = 0
     for i in symbol:
         # get length of list with same number
-        # everytime we have the same number twice, the counter is  increases by 1
+        # everytime we have the same number twice, the counter is increased by 1, therefore we can use this function for
+        # one or more pairs
         cnt = len(list(filter(lambda card: card[0] == i, rand_5)))
         if cnt == 2:
             pair += 1
@@ -102,7 +103,7 @@ def pairs(rand_5):
 def three_of_a_kind(rand_5):
     for i in symbol:
         # get length of list with same numbers
-        # we have to have on list with three items for a three_of_a_kind
+        # we have to have a list with three items for a three_of_a_kind
         cnt = len(list(filter(lambda card: card[0] == i, rand_5)))
         if cnt == 3:
             # print("True")
