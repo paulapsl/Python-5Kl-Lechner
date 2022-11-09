@@ -157,37 +157,45 @@ def royal_flush(rand_5):
 
 
 # straight(test_cards)
-
+# 1 / games * 100
 
 def poker_stat(rand_cards):
     if royal_flush(rand_cards):
-        stat["Royal Flush"] += 1 / games * 100
+        stat["Royal Flush"] += round((1 / games * 100), 2)
     elif straight_flush(rand_cards):
-        stat["Straight Flush"] += 1 / games * 100
+        stat["Straight Flush"] += round((1 / games * 100), 2)
     elif four_of_a_kind(rand_cards):
-        stat["Four of a Kind"] += 1 / games * 100
+        stat["Four of a Kind"] += round((1 / games * 100), 2)
     elif full_house(rand_cards):
-        stat["Full House"] += 1 / games * 100
+        stat["Full House"] += round((1 / games * 100), 2)
     elif flush(rand_cards):
-        stat["Flush"] += 1 / games * 100
+        stat["Flush"] += round((1 / games * 100), 2)
     elif straight(rand_cards):
-        stat["Straight"] += 1 / games * 100
+        stat["Straight"] += round((1 / games * 100), 2)
     elif three_of_a_kind(rand_cards):
-        stat["Three of a Kind"] += 1 / games * 100
+        stat["Three of a Kind"] += round((1 / games * 100), 2)
     elif pairs(rand_cards) == 2:
-        stat["Two Pair"] += 1 / games * 100
+        stat["Two Pair"] += round((1 / games * 100), 2)
     elif pairs(rand_cards) == 1:
-        stat["Pair"] += 1 / games * 100
+        stat["Pair"] += round((1 / games * 100), 2)
     else:
-        stat["Highcard"] += 1 / games * 100
+        stat["Highcard"] += round((1 / games * 100), 2)
 
 
 stat_dict()
 
-for i in range(0, games):
-    poker_stat(random_five())
 
-print(stat)
+def main():
+    for i in range(0, games):
+        poker_stat(random_five())
+    print(stat)
+
+
+if __name__ == "__main__":
+    main()
+
+
+
 
 # royal_flush(test_cards)
 # royal_flush(rand_5x)
