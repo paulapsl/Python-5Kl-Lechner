@@ -1,0 +1,92 @@
+from enum import Enum
+
+
+# enums for different departments and gender
+class Abteilung(Enum):
+    NOTDEFINED = 0
+    IT = 1
+    SALES = 2
+    MANAGEMENT = 3
+
+
+class Gender(Enum):
+    NOTDEFINED = 0
+    FEMALE = 1
+    MALE = 2
+
+
+class Person():
+    def __init__(self, firstname, lastname, age, gender: Gender):
+        self.firstname = firstname
+        self.lastname = lastname
+        self.age = age
+        self.gender = gender
+
+
+class Mitarbeiterin(Person):
+    def __init__(self, id, firstname, lastname, age, gender: Gender, abt: Abteilung):
+        super().__init__(firstname, lastname, age, gender)
+        self.id = id
+        self.abt = abt
+
+
+class Gruppenleiterin(Mitarbeiterin):
+    def __init__(self, id, firstname, lastname, age, gender: Gender, abt: Abteilung,
+                 parkingspot):
+        super().__init__(id, firstname, lastname, age, gender, abt)
+        self.parkingspot = parkingspot
+
+
+class Firma:
+    # when company is instantiated: a list of employees will be passed, therefore we suppose that we can work
+    # with a list of employees in the upcoming methods
+    def __init__(self, employees: list):
+        self.employees = employees
+
+    def count_emps(self):
+        return len([e for e in self.employees])
+
+    def count_deps(self):
+        # only count deps where instantiated employees are assigned to
+        return len({e.abt for e in self.employees})
+
+    # dictionary because it is needed in following methods
+    # creates dictionary with key starting with zero and adds a number for every department defined in an instance
+    def count_emps_per_dep(self):
+        departments = {e.abt: 0 for e in self.employees}
+        for e in self.employees:
+            departments[e.abt] += 1
+        return departments
+
+    # https://www.scaler.com/topics/python-dictionary-keys/
+    def get_biggest_dep(self):
+        # keys() makes it possible to only have access to the dictionary's key
+        biggest_dep = list(self.count_emps_per_dep().keys())[0]
+        # compare count of employees in order to find the biggest department
+        for i in self.count_emps_per_dep().keys():
+            biggest_dep = i if self.count_emps_per_dep()[i] > self.count_emps_per_dep()[biggest_dep]\
+                else biggest_dep
+        return biggest_dep
+
+    def get_gender_proportion(self):
+        cnt = {
+            Gender.FEMALE: 0,
+            Gender.MALE: 0
+        }
+        for employee in self.employees:
+            cnt[employee.gender] += 1 / len(self.employees) * 100
+        return cnt
+
+
+if __name__ == '__main__':
+    # pass list to Firma-instance
+    f1 = Firma([
+        Mitarbeiterin(1, "Max", "Mustermann", 31, Gender.MALE, Abteilung.IT),
+        Gruppenleiterin(2, "Lara", "Musterfrau", 30, Gender.FEMALE, Abteilung.IT, 344),
+        Mitarbeiterin(3, "Clara", "Soundso", 26, Gender.FEMALE, Abteilung.SALES),
+        Gruppenleiterin(1, "Hermann", "Mustermann", 41, Gender.MALE, Abteilung.MANAGEMENT, 345),
+    ])
+    print("Anzahl Mitarbeiter (inkl. Gruppenleiter):", f1.count_emps())
+    print("Anzahl Abteilungen:", f1.count_deps())
+    print("Größte Abteilung:", f1.get_biggest_dep())
+    print("Verhältnis männlich-weiblich [%]: ", f1.get_gender_proportion())
