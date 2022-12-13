@@ -1,0 +1,3 @@
+Spieler Marcel gewinnt: 1
+Computer gewinnt: 7
+{'Rock': 0, 'Paper': 0, 'Scissors': 1, 'Spock': 7, 'Lizard': 0}

@@ -2,9 +2,15 @@ import random
 import ast
 # https://docs.python.org/3/library/enum.html
 from enum import IntEnum
+import requests
 
 player_wins = 0
 comp_wins = 0
+name = (input(f"Enter your name: "))
+names = []
+multiple = names.append(name)
+
+host = 'http://localhost:5000/score'
 
 dict_stat = {"Rock": 0, "Paper": 0, "Scissors": 0, "Spock": 0, "Lizard": 0}
 
@@ -27,10 +33,16 @@ victories = {
     Action.Spock: [Action.Scissors, Action.Rock]
 }
 
+loses = {
+    Action.Scissors: [Action.Rock, Action.Spock],
+    Action.Paper: [Action.Scissors, Action.Lizard],
+    Action.Rock: [Action.Paper, Action.Lizard],
+    Action.Lizard: [Action.Rock, Action.Scissors],
+    Action.Spock: [Action.Paper, Action.Lizard]
+}
+
 
 # let computer select a random Action
-# TODO: make the selection based on earlier choices, idea: get max count from .txt
-# TODO: and computer has to select from victories from this Action
 def get_computer_selection():
     # chooses random value (0-4) defined in enum Action
     selection = random.randint(0, len(Action) - 1)
@@ -38,6 +50,30 @@ def get_computer_selection():
     print(f"Computer chose: ", action)
     return action
 
+
+# make comp selection based on user input
+def smart_comp_selection():
+    max_value = max(dict_stat.values())
+    # print("max value:", max_value)
+
+    # looks for biggest key in dict --> shows us which symbol is chosen most frequently
+    max_key = max(dict_stat, key=dict_stat.get)
+    # print("max key:",max_key)
+
+    index = list(dict_stat).index(max_key)
+    # print("index:", index)
+    # get most frequent action
+    most_frequent = Action(index)
+    print("most frequent: ", most_frequent)
+
+    defeats = loses[most_frequent]
+    # comp doesn't select random values, picks the first value in order to win
+    comp_sel = defeats[0]
+    print(f"Computer chose: ", comp_sel)
+    return comp_sel
+
+
+# smart_comp_selection()
 
 # get input from user
 def get_user_selection():
@@ -48,6 +84,7 @@ def get_user_selection():
     # get user input
     #  F-strings provide a concise and convenient way to embed python expressions inside string literals for formatting.
     selection = int(input(f"Enter a choice ({choices_str}): "))
+    print("selection", selection)
     action = Action(selection)
     # dict_stat["Action.Lizard"] = dict_stat["Action.Lizard"] + 1
     # print(dict_stat)
@@ -58,7 +95,7 @@ def determine_winner(user_action, computer_action):
     global comp_wins, player_wins
     # define defeats - consists of defined victories from specified user input
     defeats = victories[user_action]
-    print("defeats:", defeats)
+    # print("defeats:", defeats)
     if user_action == computer_action:
         print(f"Both players selected {user_action.name}. It's a tie!")
     elif computer_action in defeats:
@@ -70,45 +107,76 @@ def determine_winner(user_action, computer_action):
         comp_wins = comp_wins + 1
 
 
+# saves count of wins, statistics and player name to .txt-file
 def save_data_to_file():
-    data = "Spieler gewinnt: " + str(player_wins) + "\nComputer gewinnt: " + str(comp_wins) + "\n" + str(dict_stat)
+    data = "Spieler " + str(name) + " gewinnt: " + str(player_wins) + "\nComputer gewinnt: " + str(
+        comp_wins) + "\n" + str(dict_stat)
     with open("statistics/stat.txt", 'w') as stat:
         stat.write(data)
         stat.close()
 
 
+def save_to_server():
+    print('Speichere einen Eintrag am Server:')
+    response = requests.put('%s/%s' % (host, name), data={'score': stat})
+    print(response)
+    print(response.json())
+
+
+def get_from_server():
+    print('---------------------------')
+    print('Hole diesen Eintrag wieder:')
+    response = requests.get('%s/%s' % (host, name)).json()
+    print(response)
+
+
 if __name__ == "__main__":
-    while True:
-        try:
-            user_action = get_user_selection()
-            print("User chose:", user_action)
-            
-            if user_action == Action.Rock:
-                dict_stat["Rock"] = dict_stat["Rock"] + 1
-            elif user_action == Action.Paper:
-                dict_stat["Paper"] = dict_stat["Paper"] + 1
-            elif user_action == Action.Scissors:
-                dict_stat["Scissors"] = dict_stat["Scissors"] + 1
-            elif user_action == Action.Spock:
-                dict_stat["Spock"] = dict_stat["Spock"] + 1
-            elif user_action == Action.Lizard:
-                dict_stat["Lizard"] = dict_stat["Lizard"] + 1
-
-        except ValueError as e:
-            # if an impossible actions gets chosen, let the user know
-            range_str = f"[0, {len(Action) - 1}]"
-            print(f"Invalid selection. Enter a value in range {range_str}")
-            # continue statement in Python returns the control to the beginning of the while loop.
-            continue
-        # let computer pick choice
-        computer_action = get_computer_selection()
-        determine_winner(user_action, computer_action)
-
-        play_again = input("Play again? (y/n): ")
-        # .lower because we also accept Y as well as y
-        if play_again.lower() != "y":
-            break  # ends while True
-
-        save_data_to_file()
+    modus = input("Eigene Statistik ansehen[1], Spielen [2]: ")
+    if modus.lower() == "1":
+        get_from_server()
+    else:
+        while True:
+            try:
+                user_action = get_user_selection()
+                print("User chose:", user_action)
+                # count amount of chosen symbols in dictionary
+                if user_action == Action.Rock:
+                    dict_stat["Rock"] = dict_stat["Rock"] + 1
+                elif user_action == Action.Paper:
+                    dict_stat["Paper"] = dict_stat["Paper"] + 1
+                elif user_action == Action.Scissors:
+                    dict_stat["Scissors"] = dict_stat["Scissors"] + 1
+                elif user_action == Action.Spock:
+                    dict_stat["Spock"] = dict_stat["Spock"] + 1
+                elif user_action == Action.Lizard:
+                    dict_stat["Lizard"] = dict_stat["Lizard"] + 1
 
 
+            except ValueError as e:
+                # if an impossible actions gets chosen, let the user know
+                range_str = f"[0, {len(Action) - 1}]"
+                print(f"Invalid selection. Enter a value in range {range_str}")
+                # continue statement in Python returns the control to the beginning of the while loop.
+                continue
+            # let computer pick choice
+            '''level = input(f"Choose a level: Easy[0], Hard[1]: ")
+            if level == 0:
+                computer_action = get_computer_selection()
+            elif level == 1:
+                computer_action = smart_comp_selection()'''
+
+            computer_action = smart_comp_selection()
+            determine_winner(user_action, computer_action)
+
+            play_again = input("Play again? (y/n): ")
+            # .lower because we also accept Y as well as y
+            if play_again.lower() != "y":
+                break  # ends while True
+
+            save_data_to_file()
+
+        stat = str(dict_stat)
+
+        # after the game ended, name and statistics of the player are saved to the flask-server
+        save_to_server()
+        get_from_server()
