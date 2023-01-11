@@ -1,5 +1,4 @@
 import random
-import ast
 # https://docs.python.org/3/library/enum.html
 from enum import IntEnum
 import requests
@@ -118,6 +117,7 @@ def save_data_to_file():
 
 def save_to_server():
     print('Speichere einen Eintrag am Server:')
+    stat = str(dict_stat)
     response = requests.put('%s/%s' % (host, name), data={'score': stat})
     print(response)
     print(response.json())
@@ -130,7 +130,7 @@ def get_from_server():
     print(response)
 
 
-if __name__ == "__main__":
+def main():
     modus = input("Eigene Statistik ansehen[1], Spielen [2]: ")
     if modus.lower() == "1":
         get_from_server()
@@ -175,8 +175,14 @@ if __name__ == "__main__":
 
             save_data_to_file()
 
-        stat = str(dict_stat)
+        # stat = str(dict_stat)
 
         # after the game ended, name and statistics of the player are saved to the flask-server
         save_to_server()
         get_from_server()
+
+
+if __name__ == "__main__":
+   main()
+
+
