@@ -2,16 +2,20 @@ import random
 # https://docs.python.org/3/library/enum.html
 from enum import IntEnum
 import requests
+from matplotlib import pyplot as plt
 
 player_wins = 0
 comp_wins = 0
 name = (input(f"Enter your name: "))
-names = []
-multiple = names.append(name)
 
 host = 'http://localhost:5000/score'
 
 dict_stat = {"Rock": 0, "Paper": 0, "Scissors": 0, "Spock": 0, "Lizard": 0}
+
+menu_options = {
+    1: 'Eigene Statistik ansehen',
+    2: 'RPSSL spielen'
+}
 
 
 # create enum containing all possible actions
@@ -32,6 +36,7 @@ victories = {
     Action.Spock: [Action.Scissors, Action.Rock]
 }
 
+# define loses - dict
 loses = {
     Action.Scissors: [Action.Rock, Action.Spock],
     Action.Paper: [Action.Scissors, Action.Lizard],
@@ -41,12 +46,18 @@ loses = {
 }
 
 
+# for formatted console-output
+def print_menu():
+    for key in menu_options.keys():
+        print(key, '--', menu_options[key])
+
+
 # let computer select a random Action
 def get_computer_selection():
     # chooses random value (0-4) defined in enum Action
     selection = random.randint(0, len(Action) - 1)
     action = Action(selection)
-    print(f"Computer chose: ", action)
+    # print(f"Computer chose: ", action)
     return action
 
 
@@ -63,16 +74,14 @@ def smart_comp_selection():
     # print("index:", index)
     # get most frequent action
     most_frequent = Action(index)
-    print("most frequent: ", most_frequent)
+    # print("most frequent: ", most_frequent)
 
     defeats = loses[most_frequent]
     # comp doesn't select random values, picks the first value in order to win
     comp_sel = defeats[0]
-    print(f"Computer chose: ", comp_sel)
+    # print(f"Computer chose: ", comp_sel)
     return comp_sel
 
-
-# smart_comp_selection()
 
 # get input from user
 def get_user_selection():
@@ -83,7 +92,7 @@ def get_user_selection():
     # get user input
     #  F-strings provide a concise and convenient way to embed python expressions inside string literals for formatting.
     selection = int(input(f"Enter a choice ({choices_str}): "))
-    print("selection", selection)
+    # print("selection", selection)
     action = Action(selection)
     # dict_stat["Action.Lizard"] = dict_stat["Action.Lizard"] + 1
     # print(dict_stat)
@@ -130,59 +139,69 @@ def get_from_server():
     print(response)
 
 
+def get_plot():
+    labels = []
+    sizes = []
+
+    for x, y in dict_stat.items():
+        labels.append(x)
+        sizes.append(y)
+
+    # Plot
+    plt.pie(sizes, labels=labels)
+
+    plt.axis('equal')
+    plt.show()
+
+
 def main():
-    modus = input("Eigene Statistik ansehen[1], Spielen [2]: ")
-    if modus.lower() == "1":
-        get_from_server()
-    else:
-        while True:
-            try:
-                user_action = get_user_selection()
-                print("User chose:", user_action)
-                # count amount of chosen symbols in dictionary
-                if user_action == Action.Rock:
-                    dict_stat["Rock"] = dict_stat["Rock"] + 1
-                elif user_action == Action.Paper:
-                    dict_stat["Paper"] = dict_stat["Paper"] + 1
-                elif user_action == Action.Scissors:
-                    dict_stat["Scissors"] = dict_stat["Scissors"] + 1
-                elif user_action == Action.Spock:
-                    dict_stat["Spock"] = dict_stat["Spock"] + 1
-                elif user_action == Action.Lizard:
-                    dict_stat["Lizard"] = dict_stat["Lizard"] + 1
+    while (True):
+        print_menu()
+        option = int(input('Enter your choice: '))
+        if option == "1":
+            get_from_server()
+        else:
+            while True:
+                try:
+                    user_action = get_user_selection()
+                    print("User chose:", user_action)
+                    # count amount of chosen symbols in dictionary
+                    if user_action == Action.Rock:
+                        dict_stat["Rock"] = dict_stat["Rock"] + 1
+                    elif user_action == Action.Paper:
+                        dict_stat["Paper"] = dict_stat["Paper"] + 1
+                    elif user_action == Action.Scissors:
+                        dict_stat["Scissors"] = dict_stat["Scissors"] + 1
+                    elif user_action == Action.Spock:
+                        dict_stat["Spock"] = dict_stat["Spock"] + 1
+                    elif user_action == Action.Lizard:
+                        dict_stat["Lizard"] = dict_stat["Lizard"] + 1
 
 
-            except ValueError as e:
-                # if an impossible actions gets chosen, let the user know
-                range_str = f"[0, {len(Action) - 1}]"
-                print(f"Invalid selection. Enter a value in range {range_str}")
-                # continue statement in Python returns the control to the beginning of the while loop.
-                continue
-            # let computer pick choice
-            '''level = input(f"Choose a level: Easy[0], Hard[1]: ")
-            if level == 0:
-                computer_action = get_computer_selection()
-            elif level == 1:
-                computer_action = smart_comp_selection()'''
+                except ValueError as e:
+                    # if an impossible actions gets chosen, let the user know
+                    range_str = f"[0, {len(Action) - 1}]"
+                    print(f"Invalid selection. Enter a value in range {range_str}")
+                    # continue statement in Python returns the control to the beginning of the while loop.
+                    continue
 
-            computer_action = smart_comp_selection()
-            determine_winner(user_action, computer_action)
+                computer_action = smart_comp_selection()
+                determine_winner(user_action, computer_action)
 
-            play_again = input("Play again? (y/n): ")
-            # .lower because we also accept Y as well as y
-            if play_again.lower() != "y":
-                break  # ends while True
+                play_again = input("Play again? (y/n): ")
+                # .lower because we also accept Y as well as y
+                if play_again.lower() != "y":
+                    break  # ends while True
 
-            save_data_to_file()
+                save_data_to_file()
 
-        # stat = str(dict_stat)
+            # stat = str(dict_stat)
 
-        # after the game ended, name and statistics of the player are saved to the flask-server
-        save_to_server()
-        get_from_server()
+            # after the game ended, name and statistics of the player are saved to the flask-server
+            save_to_server()
+            get_from_server()
+            get_plot()
 
 
 if __name__ == "__main__":
-   main()
-
-
+    main()
