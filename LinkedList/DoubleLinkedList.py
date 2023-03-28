@@ -17,9 +17,11 @@ class DoubleLinkedList:
     def append(self, data):
         new_elm = ListElement(data)
         if self.head is None:
+            # wenn Liste leer ist, ist das neue Element Head (+Tail)
             self.head = new_elm
             self.tail = new_elm
         else:
+            # ansonsten wird das Element am Tail angehängt
             new_elm.prev = self.tail
             self.tail.next = new_elm
             self.tail = new_elm
@@ -28,38 +30,27 @@ class DoubleLinkedList:
     def delete_node(self, data):
         # diese Methode ermöglicht es, unter Angabe des Knotens in der Liste, ein bestimmtes Element zu löschen
 
-        # Überprüfe, ob der Knoten, der gelöscht werden soll, der Kopf der Liste ist
+        # Überprüfen, ob der Knoten, der gelöscht werden soll, der Kopf der Liste ist
         if self.head == data:
             self.head = data.next
 
-        # Verbinde den Vorgänger-Knoten mit dem Nachfolger-Knoten
+        # Vorgänger mit Nachfolger verbinden
         if data.prev is not None:
             data.prev.next = data.next
 
-        # Verbinde den Nachfolger-Knoten mit dem Vorgänger-Knoten
+        # Nachfolger mit Vorgänger verbinden
         if data.next is not None:
             data.next.prev = data.prev
 
-    def delete_elm(self,data):
-        # in dieser delete-methode ein gewünschtes Element gelöscht
-        current_node = self.head
-        while current_node:
-            if current_node.data == data:
-                if current_node == self.head and current_node == self.tail:
-                    self.head = None
-                    self.tail = None
-                elif current_node == self.head:
-                    self.head = current_node.next
-                    self.head.prev = None
-                elif current_node == self.tail:
-                    self.tail = current_node.prev
-                    self.tail.next = None
-                else:
-                    current_node.prev.next = current_node.next
-                    current_node.next.prev = current_node.prev
-                return True
-            current_node = current_node.next
-        return False
+    def delete_elm(self, data):
+        # in dieser delete-methode wird ein gewünschtes Element gelöscht
+        if data == self.head.data:
+            self.head = self.head.next
+            return
+        temp = self.head
+        while temp.data != data:
+            temp = temp.next
+        temp.prev.next = temp.next
 
     # print/display
     def display(self):
@@ -78,19 +69,11 @@ class DoubleLinkedList:
             temp = temp.next
         return cnt
 
-    # get
-    '''def get_from_index(self, index):
-        if index < 0 or index >= self.length:
-            raise IndexError("Index out of range")
-        curr = self.head
-        for i in range(index):
-            curr = curr.next
-        return curr.value'''
-
     # index
     def index(self, key):
         curr = self.head
         index = 0
+        # List durchgehen und suchen bis gewünschtes Element gefunden
         while curr is not None and curr.data != key:
             curr = curr.next
             index += 1
@@ -98,6 +81,30 @@ class DoubleLinkedList:
             return -1
         else:
             return index
+
+    def clear(self):
+        # alle Knoten leeren
+        self.tail.prev = None
+        self.head.next = None
+        self.tail = None
+        self.head = None
+
+    def reverse(self):
+        # zweite Liste erzeugen, erste Liste von hinten durchgehen und in neue Liste einfügen
+        if self.head is None:
+            return
+        rev_list = DoubleLinkedList()
+        # temp ist self.tail, weil Liste jetzt von hinten durchgegangen wird
+        temp = self.tail
+        # durchgehen, solange man noch nicht vorne in der Liste angekommen ist
+        while temp is not self.head:
+            # Elemente der neuen Liste hinzufügen
+            rev_list.append(temp)
+            # um ein Element weiter vorgehen
+            temp = temp.prev
+        # am Schluss head hinzufügen
+        rev_list.append(self.head)
+        return rev_list
 
 
 def main():
@@ -118,12 +125,16 @@ def main():
     node_to_delete = listone.head.next  # den zweiten Knoten löschen
 
     print("Index of 3 in List 1: ", listone.index(3))
-    # print("Element at Index 4 in List 2: ", listtwo.get_from_index(4))
     print("Elements in List 1: ", listone.count_elements())
     print("Delete second element from List 1: ", listone.delete_node(node_to_delete))
     listone.display()
     print("Delete 15 from List 1: ", listone.delete_elm(15))
     listone.display()
+    rev_list = listone.reverse()
+    print("List 1 Reverse: ")
+    rev_list.display()
+    listtwo.clear()
+    listtwo.display()
 
 
 if __name__ == '__main__':
