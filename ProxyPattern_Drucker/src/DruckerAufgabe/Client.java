@@ -3,13 +3,10 @@ package DruckerAufgabe;
 public class Client {
 
 	public static void main(String[] args) {
-        Drucker blackAndWhitePrinter = new SchwarzWeiss();
-        Drucker colorPrinter = new Farbe();
+        DruckerInterface drucker = new ProxyDrucker("Dies ist ein Test", true);
+        drucker.drucken();
 
-        blackAndWhitePrinter.drucken("Hello, world!");
-       
-        colorPrinter.drucken("Hello, world!");
-
-	}
-
+        ((ProxyDrucker) drucker).switchToSchwarzWeiss(false);
+        drucker.drucken(); 
+    }
 }
